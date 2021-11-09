@@ -1,23 +1,57 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ARRAY, ForeignKey
+"""
+Artist, Venue and Show models
+"""
+# Imports
+
 from flask_sqlalchemy import SQLAlchemy
-from flask_migrate import Migrate
+
 db = SQLAlchemy()
 
-
-# TODO: connect to a local postgresql database
-def db_setup(app):
-    app.config.from_object('config')
-    db.app = app
-    db.init_app(app)
-    migrate = Migrate(app, db)
-    return db
-
-#----------------------------------------------------------------------------#
 # Models.
-#----------------------------------------------------------------------------#
+
+
+class Artist(db.Model):
+    """ Artist Model"""
+    __tablename__ = 'artists'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String)
+    city = db.Column(db.String(120))
+    state = db.Column(db.String(120))
+    phone = db.Column(db.String(120))
+    genres = db.Column(db.String(120))
+    website = db.Column(db.String(120))
+    image_link = db.Column(db.String(500))
+    facebook_link = db.Column(db.String(120))
+    seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(120))
+
+    venues = db.relationship('Venue', secondary='shows')
+    shows = db.relationship('Show', backref=('artists'))
+
+    def to_dict(self):
+        """ Returns a dictinary of artists """
+        return {
+            'id': self.id,
+            'name': self.name,
+            'city': self.city,
+            'state': self.state,
+            'phone': self.phone,
+            'genres': self.genres.split(','),  # convert string to list
+            'image_link': self.image_link,
+            'facebook_link': self.facebook_link,
+            'website': self.website,
+            'seeking_venue': self.seeking_venue,
+            'seeking_description': self.seeking_description,
+        }
+        
+    def __repr__(self):
+        return f'<Artist {self.id} {self.name}>'
+
 
 class Venue(db.Model):
-    __tablename__ = 'Venue'
+    """ Venue Model """
+    __tablename__ = 'venues'
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String)
@@ -25,182 +59,67 @@ class Venue(db.Model):
     state = db.Column(db.String(120))
     address = db.Column(db.String(120))
     phone = db.Column(db.String(120))
-    image_link = db.Column(db.String(500))
-    facebook_link = db.Column(db.String(120))
-    description = db.Column(db.String(500), default='')
-    seeking_talent = db.Column(Boolean, default=False)
-    website = db.Column(String(120))
-    genres = db.Column(ARRAY(String))
-    shows = db.relationship('Show', backref='Venue', lazy='dynamic')
-
-    def __init__(self, name, genres, address, city, state, phone, website, facebook_link, image_link,
-                 seeking_talent=False, description=""):
-        self.name = name
-        self.genres = genres
-        self.city = city
-        self.state = state
-        self.address = address
-        self.phone = phone
-        self.image_link = image_link
-        self.facebook_link = facebook_link
-        self.website = website
-        self.description = description
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def update(self):
-        db.session.commit()
-    
-    def delete(self):
-        db.session.delete(self)
-        db.session.commit()
-  
-    def short(self):
-        return{
-            'id':self.id,
-            'name':self.name,
-        }
-    
-    def long(self):
-        print(self)
-        return{
-            'id' :self.id,
-            'name' :self.name,
-            'city' : self.city,
-            'state' :self.state,
-        }
-    
-    def detail(self):
-        return{
-            'id' :self.id,
-            'name' :self.name,
-            'genres' : self.genres,
-            'address' :self.address,
-            'city' :self.city,
-            'phone' :self.phone,
-            'website' :self.website,
-            'facebook_link':self.facebook_link,
-            'seeking_talent' :self.seeking_talent,
-            'description' :self.description,
-            'image-link' :self.image_link
-        }
-        
-
-
-        
-
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-class Artist(db.Model):
-    __tablename__ = 'Artist'
-    
-
-    id = Column(Integer, primary_key=True)
-    name = db.Column(db.String)
-    city = db.Column(db.String(120))
-    state = db.Column(db.String(120))
-    phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    seeking_venue = db.Column(db.Boolean, default=False)
-    seeking_description = db.Column(db.String(120), default=' ')
     website = db.Column(db.String(120))
-    shows = db.relationship('Show', backref='Artist', lazy=True)
+    seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
+    seeking_description = db.Column(db.String(120))
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
+    artists = db.relationship('Artist', secondary='shows')
+    shows = db.relationship('Show', backref=('venues'))
 
-    def __init__(self, name, genres, city, state, phone, image_link, website, facebook_link,
-                 seeking_venue=False, seeking_description=""):
-        self.name = name
-        self.genres = genres
-        self.city = city
-        self.state = state
-        self.phone = phone
-        self.website = website
-        self.facebook_link = facebook_link
-        self.seeking_description = seeking_description
-        self.image_link = image_link
-    
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-    
-    def update(self):
-        db.session.commit()
-    
-    def short(self):
-        return{
-            'id': self.id,
-            'name':self.name,
-        }
-    
-    def details(self):
-        return{
+    def to_dict(self):
+        """ Returns a dictinary of vevenuesnues """
+        return {
             'id': self.id,
             'name': self.name,
-            'genres': self.genres,
             'city': self.city,
-            'state':self.state,
+            'state': self.state,
+            'address': self.address,
             'phone': self.phone,
-            'website': self.website,
-            'facebook_link': self.facebook_link,
-            'seeking_venue': self.seeking_venue,
-            'seeking_description': self.seeking_description,
+            'genres': self.genres.split(','),  # convert string to list
             'image_link': self.image_link,
-
+            'facebook_link': self.facebook_link,
+            'website': self.website,
+            'seeking_talent': self.seeking_talent,
+            'seeking_description': self.seeking_description,
         }
 
-# TODO Implement Show and Artist models, and complete all model relationships and properties, as a database migration.
+    def __repr__(self):
+        return f'<Venue {self.id} {self.name}>'
 
 
-#show model
 class Show(db.Model):
+    """ Show Model """
+    __tablename__ = 'shows'
 
-    __tablename__ = 'Show'
-    id = db.Column(Integer,primary_key=True)
-    venue_id = db.Column(Integer, ForeignKey(Venue.id), nullable=False)
-    artist_id = db.Column(Integer, ForeignKey(Artist.id), nullable=False)
-    start_time = db.Column(String(), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    artist_id = db.Column(db.Integer, db.ForeignKey(
+        'artists.id'), nullable=False)
+    venue_id = db.Column(db.Integer, db.ForeignKey(
+        'venues.id'), nullable=False)
+    start_time = db.Column(db.DateTime, nullable=False)
 
+    venue = db.relationship('Venue')
+    artist = db.relationship('Artist')
 
-    def __init__(self, venue_id,artist_id,start_time):
-        self.venue_id = venue_id
-        self.artist_id = artist_id
-        self.start_time = start_time
-
-    def insert(self):
-        db.session.add(self)
-        db.session.commit()
-
-    def detail(self):
-        return{
-            'venue_id' :self.venue_id,
-            'venue_name' :self.Venue.name,
-            'artist_id' :self.artist_id,
-            'artist_name' :self.Artist.name,
-            'artist_image_link' :self.Artist.image_link,
-            'start_time' :self.start_time
+    def show_artist(self):
+        """ Returns a dictinary of artists for the show """
+        return {
+            'artist_id': self.artist_id,
+            'artist_name': self.artist.name,
+            'artist_image_link': self.artist.image_link,
+            # convert datetime to string
+            'start_time': self.start_time.strftime('%Y-%m-%d %H:%M:%S')
         }
 
-    def artist_details(self):
-        return{
-            'artist_id' :self.venue_id,
-            'artist_name' :self.Artist.name,
-            'artist_image_link' :self.Artist.image_link,
-            'start_time' :self.start_time
-
-        }
- 
-    
-    def venue_details(self):
-        return{
-            'venue_id' :self.venue_id,
-            'venue_name' :self.Venue.name,
-            'venue_image_link' :self.Venue.image_link,
-            'start_time' :self.start_time
-            
+    def show_venue(self):
+        """ Returns a dictinary of venues for the show """
+        return {
+            'venue_id': self.venue_id,
+            'venue_name': self.venue.name,
+            'venue_image_link': self.venue.image_link,
+            # convert datetime to string
+            'start_time': self.start_time.strftime('%Y-%m-%d %H:%M:%S')
         }
