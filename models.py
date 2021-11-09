@@ -20,7 +20,7 @@ class Artist(db.Model):
     state = db.Column(db.String(120))
     phone = db.Column(db.String(120))
     genres = db.Column(db.String(120))
-    website = db.Column(db.String(120))
+    website_link = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
     seeking_venue = db.Column(db.Boolean, nullable=False, default=False)
@@ -40,7 +40,7 @@ class Artist(db.Model):
             'genres': self.genres.split(','),  # convert string to list
             'image_link': self.image_link,
             'facebook_link': self.facebook_link,
-            'website': self.website,
+            'website_link': self.website_link,
             'seeking_venue': self.seeking_venue,
             'seeking_description': self.seeking_description,
         }
@@ -62,7 +62,7 @@ class Venue(db.Model):
     genres = db.Column(db.String(120))
     image_link = db.Column(db.String(500))
     facebook_link = db.Column(db.String(120))
-    website = db.Column(db.String(120))
+    website_link = db.Column(db.String(120))
     seeking_talent = db.Column(db.Boolean, nullable=False, default=False)
     seeking_description = db.Column(db.String(120))
 
@@ -81,7 +81,7 @@ class Venue(db.Model):
             'genres': self.genres.split(','),  # convert string to list
             'image_link': self.image_link,
             'facebook_link': self.facebook_link,
-            'website': self.website,
+            'website_link': self.website_link,
             'seeking_talent': self.seeking_talent,
             'seeking_description': self.seeking_description,
         }

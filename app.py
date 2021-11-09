@@ -12,8 +12,8 @@ from logging import FileHandler, Formatter
 
 import babel
 import dateutil.parser
-from flask import (Flask, Response, flash, jsonify, redirect, render_template,
-                   request, url_for)
+from flask import (Flask, Response, flash, jsonify, 
+redirect, render_template, request, url_for)
 from flask_migrate import Migrate
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
@@ -31,7 +31,7 @@ app.config.from_object('config')
 db.init_app(app)
 migrate = Migrate(app, db)
 
-SQLALCHEMY_DATABASE_URI = 'postgres://mitch:mufasa2019@localhost:5432/fyyur'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres@localhost:5432/fyyur'
 # Filters.
 
 
@@ -78,7 +78,7 @@ def create_artist_submission():
         artist.phone = request.form['phone']
         tmp_genres = request.form.getlist('genres')
         artist.genres = ','.join(tmp_genres)
-        artist.website = request.form['website']
+        artist.website_link = request.form['website_link']
         artist.image_link = request.form['image_link']
         artist.facebook_link = request.form['facebook_link']
         artist.seeking_description = request.form['seeking_description']
@@ -150,7 +150,7 @@ def edit_artist_submission(artist_id):
         artist.phone = request.form['phone']
         tmp_genres = request.form.getlist('genres')
         artist.genres = ','.join(tmp_genres)
-        artist.website = request.form['website']
+        artist.website_link = request.form['website_link']
         artist.image_link = request.form['image_link']
         artist.facebook_link = request.form['facebook_link']
         artist.seeking_description = request.form['seeking_description']
